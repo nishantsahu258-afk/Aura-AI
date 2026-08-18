@@ -115,7 +115,7 @@ export default function HeroInput({ onSend, disabled }) {
               background: value.trim()
                 ? "linear-gradient(135deg, #5b8cff 0%, #7657e8 45%, #ee79c0 100%)"
                 : "var(--color-surface-active)",
-              color: "#ffffff",
+              color: value.trim() ? "#ffffff" : "var(--color-foreground-muted)",
               border: "none",
               outline: "none",
               opacity: value.trim() && !disabled ? 1 : 0.45,

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import { AppProvider, useApp } from "./context/AppContext.jsx";
 import LandingPage from "./pages/LandingPage.jsx";

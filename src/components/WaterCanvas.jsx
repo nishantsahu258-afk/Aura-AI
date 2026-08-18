@@ -33,8 +33,9 @@ export default function WaterCanvas() {
     function resize() {
       W = canvas.offsetWidth;
       H = canvas.offsetHeight;
-      canvas.width = W * devicePixelRatio;
-      canvas.height = H * devicePixelRatio;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2); // Cap at 2 for performance on mobile
+      canvas.width = W * dpr;
+      canvas.height = H * dpr;
       gl.viewport(0, 0, canvas.width, canvas.height);
     }
     resize();
@@ -200,28 +201,43 @@ export default function WaterCanvas() {
     // -------------------------------------------------------
     let lx = -1, ly = -1, lt = 0;
 
-    function onMove(e) {
+    function handleInteraction(clientX, clientY, isTap = false) {
       const rect = canvas.getBoundingClientRect();
-      const nx = (e.clientX - rect.left) / rect.width;
-      const ny = 1 - (e.clientY - rect.top) / rect.height;
+      const nx = (clientX - rect.left) / rect.width;
+      const ny = 1 - (clientY - rect.top) / rect.height;
       const now = performance.now();
+
+      if (isTap) {
+        dropWave(nx, ny, 4.0); // Strong ripple on tap/click
+        lt = now; lx = nx; ly = ny;
+        return;
+      }
+
       const moved = Math.abs(nx - lx) + Math.abs(ny - ly);
-      if (now - lt > 40 && moved > 0.001) {
-        dropWave(nx, ny, 1.2 + moved * 8);
+      // More sensitive and responsive for touch drags
+      if (now - lt > 25 && moved > 0.0005) {
+        dropWave(nx, ny, 1.2 + moved * 10);
         lt = now; lx = nx; ly = ny;
       }
     }
 
-    function onTouch(e) {
-      const t = e.touches[0]; if (!t) return;
-      const rect = canvas.getBoundingClientRect();
-      dropWave((t.clientX - rect.left) / rect.width,
-               1 - (t.clientY - rect.top) / rect.height, 2.0);
+    function onPointerMove(e) { handleInteraction(e.clientX, e.clientY); }
+    function onPointerDown(e) { handleInteraction(e.clientX, e.clientY, true); }
+
+    function onTouchMove(e) {
+      const t = e.touches[0];
+      if (t) handleInteraction(t.clientX, t.clientY);
+    }
+    function onTouchStart(e) {
+      const t = e.touches[0];
+      if (t) handleInteraction(t.clientX, t.clientY, true);
     }
 
     const host = canvas.parentElement ?? canvas;
-    host.addEventListener("pointermove", onMove);
-    host.addEventListener("touchmove", onTouch, { passive: true });
+    host.addEventListener("pointermove", onPointerMove);
+    host.addEventListener("pointerdown", onPointerDown);
+    host.addEventListener("touchmove", onTouchMove, { passive: true });
+    host.addEventListener("touchstart", onTouchStart, { passive: true });
 
     // -------------------------------------------------------
     // Render loop
@@ -273,8 +289,10 @@ export default function WaterCanvas() {
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
-      host.removeEventListener("pointermove", onMove);
-      host.removeEventListener("touchmove", onTouch);
+      host.removeEventListener("pointermove", onPointerMove);
+      host.removeEventListener("pointerdown", onPointerDown);
+      host.removeEventListener("touchmove", onTouchMove);
+      host.removeEventListener("touchstart", onTouchStart);
       gl.deleteProgram(prog);
       gl.deleteTexture(waveTex);
       gl.deleteBuffer(buf);

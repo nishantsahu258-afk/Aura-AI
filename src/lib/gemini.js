@@ -143,10 +143,10 @@ export async function sendMessage({
       }
 
       // ── Parse response ──────────────────────────────────────
-      let data = null;
+      let data;
       try {
         data = await response.json();
-      } catch (_) {
+      } catch {
         // Malformed JSON — likely a stream truncation
         if (attempt < 3) {
           await new Promise((r) => setTimeout(r, 1000));

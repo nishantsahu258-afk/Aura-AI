@@ -3,7 +3,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Menu, Sun, Moon } from "lucide-react";
 import Sidebar from "../components/Sidebar.jsx";
 import ChatWindow from "../components/ChatWindow.jsx";
-import LogoLockup from "../components/LogoLockup.jsx";
 import { useApp } from "../context/AppContext.jsx";
 
 export default function ChatPage() {
@@ -21,6 +20,7 @@ export default function ChatPage() {
   } = useApp();
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const chat = chats.find((c) => c.id === chatId) ?? null;
@@ -61,6 +61,8 @@ export default function ChatPage() {
         onOpenSettings={() => setSettingsOpen(true)}
         collapsed={sidebarCollapsed}
         onToggleCollapsed={() => setSidebarCollapsed((c) => !c)}
+        mobileOpen={mobileMenuOpen}
+        onCloseMobile={() => setMobileMenuOpen(false)}
       />
 
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
@@ -68,21 +70,21 @@ export default function ChatPage() {
           className="flex h-14 shrink-0 items-center gap-3 px-4"
           style={{ borderBottom: "1px solid var(--color-border-subtle)", background: "var(--background)" }}
         >
-          {sidebarCollapsed && (
-            <button
-              id="chat-open-sidebar-btn"
-              aria-label="Open sidebar"
-              onClick={() => setSidebarCollapsed(false)}
-              className="icon-btn rounded-lg p-1.5"
-              style={{ background: "transparent", color: "var(--color-foreground-muted)" }}
-            >
-              <Menu size={18} />
-            </button>
-          )}
-          <LogoLockup size={20} textSize="0.95rem" animated={false} />
+          <button
+            id="chat-open-sidebar-btn"
+            aria-label="Open sidebar"
+            onClick={() => {
+              setSidebarCollapsed(false);
+              setMobileMenuOpen(true);
+            }}
+            className={`icon-btn rounded-lg p-1.5 ${!sidebarCollapsed ? "md:hidden" : ""}`}
+            style={{ background: "transparent", color: "var(--color-foreground-muted)" }}
+          >
+            <Menu size={18} />
+          </button>
           <span
-            className="text-muted flex-1 truncate"
-            style={{ fontSize: "var(--text-body-sm)" }}
+            className="text-muted flex-1 truncate font-medium"
+            style={{ fontSize: "var(--text-body)", marginLeft: "4px" }}
           >
             {chat?.title ?? ""}
           </span>

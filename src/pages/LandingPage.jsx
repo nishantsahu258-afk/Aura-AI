@@ -57,7 +57,7 @@ export default function LandingPage() {
               }}
             >
               <MessageSquare size={15} />
-              Your chats
+              <span className="hidden sm:inline">Your chats</span>
             </button>
           )}
 

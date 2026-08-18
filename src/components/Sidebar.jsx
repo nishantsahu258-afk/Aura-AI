@@ -29,13 +29,15 @@ export default function Sidebar({
   onOpenSettings,
   collapsed,
   onToggleCollapsed,
+  mobileOpen,
+  onCloseMobile,
 }) {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
   if (collapsed) {
     return (
       <div
-        className="flex h-full w-16 flex-col items-center gap-4 py-4"
+        className="hidden md:flex h-full w-16 flex-col items-center gap-4 py-4"
         style={sidebarStyle}
       >
         <Logo size={28} />
@@ -73,11 +75,19 @@ export default function Sidebar({
   }
 
   return (
-    <aside
-      className="flex h-full w-72 shrink-0 flex-col"
-      style={sidebarStyle}
-    >
-      <div className="flex items-center justify-between px-4 pt-4">
+    <>
+      {/* Mobile Overlay Background */}
+      {mobileOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-black/40 md:hidden" 
+          onClick={onCloseMobile}
+        />
+      )}
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 flex h-full w-72 shrink-0 flex-col md:relative md:translate-x-0 transition-transform duration-300 ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}
+        style={sidebarStyle}
+      >
+        <div className="flex items-center justify-between px-4 pt-4">
         <div className="flex items-center gap-2.5">
           <Logo size={26} />
           <span
@@ -94,7 +104,7 @@ export default function Sidebar({
           id="sidebar-collapse-btn"
           aria-label="Collapse sidebar"
           onClick={onToggleCollapsed}
-          className="icon-btn rounded-[var(--radius-sm)] p-1.5"
+          className="icon-btn hidden md:block rounded-[var(--radius-sm)] p-1.5"
           style={{ background: "transparent", color: "var(--color-foreground-muted)" }}
         >
           <PanelLeftClose size={17} />
@@ -104,7 +114,10 @@ export default function Sidebar({
       <div className="px-4 pt-4">
         <button
           id="sidebar-new-chat-btn"
-          onClick={onCreate}
+          onClick={() => {
+            onCreate();
+            if (onCloseMobile) onCloseMobile();
+          }}
           className="flex w-full items-center justify-center gap-2 rounded-[var(--radius-pill)] py-2.5 font-semibold"
           style={{
             background: "var(--brand-gradient)",
@@ -124,10 +137,18 @@ export default function Sidebar({
           return (
             <div
               key={chat.id}
-              onClick={() => onSelect(chat.id)}
+              onClick={() => {
+                onSelect(chat.id);
+                if (onCloseMobile) onCloseMobile();
+              }}
               role="button"
               tabIndex={0}
-              onKeyDown={(e) => e.key === "Enter" && onSelect(chat.id)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  onSelect(chat.id);
+                  if (onCloseMobile) onCloseMobile();
+                }
+              }}
               className="group flex cursor-pointer items-center gap-2 rounded-[var(--radius-md)] px-3 py-2.5"
               style={{
                 background: isActive ? "var(--color-surface-active)" : "transparent",
@@ -168,7 +189,7 @@ export default function Sidebar({
                   e.stopPropagation();
                   setDeleteConfirmId(chat.id);
                 }}
-                className="shrink-0 rounded-[var(--radius-xs)] p-1 opacity-0 group-hover:opacity-100"
+                className="shrink-0 rounded-[var(--radius-xs)] p-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
                 style={{
                   background: "transparent",
                   border: "none",
@@ -189,7 +210,10 @@ export default function Sidebar({
       >
         <button
           id="sidebar-settings-btn"
-          onClick={onOpenSettings}
+          onClick={() => {
+            onOpenSettings();
+            if (onCloseMobile) onCloseMobile();
+          }}
           className="icon-btn flex w-full items-center gap-2.5 rounded-[var(--radius-md)] px-2.5 py-2"
           style={{
             background: "transparent",
@@ -212,6 +236,7 @@ export default function Sidebar({
           }}
         />
       )}
-    </aside>
+      </aside>
+    </>
   );
 }
