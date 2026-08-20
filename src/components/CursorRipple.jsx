@@ -9,7 +9,7 @@ export default function CursorRipple() {
   const canvasRef = useRef(null);
 
   useEffect(() => {
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce), (pointer: coarse), (max-width: 1024px)").matches;
     if (reduceMotion) return;
 
     const canvas = canvasRef.current;

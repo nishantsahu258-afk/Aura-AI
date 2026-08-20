@@ -15,6 +15,9 @@ export default function CustomCursor() {
   
   useEffect(() => {
     let rafId;
+    const isMobileOrTablet = window.matchMedia("(pointer: coarse), (max-width: 1024px)").matches;
+    if (isMobileOrTablet) return;
+
     const canvas = trailCanvasRef.current;
     const ctx = canvas.getContext('2d');
     
