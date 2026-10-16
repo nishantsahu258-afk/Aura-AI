@@ -7,9 +7,15 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Node modules
 node_modules
+frontend/node_modules
+backend/node_modules
+
+# Build artifacts
 dist
 dist-ssr
+frontend/dist
 *.local
 
 # Editor directories and files
@@ -22,3 +28,21 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment secrets
+.env
+.env.*
+backend/.env
+backend/.env.*
+frontend/.env
+frontend/.env.*
+server/.env
+frontend/.env.local
+
+# Always track example templates
+!.env.example
+!*.example
+!**/.env.example
+
+# Vercel & hosting cache
+.vercel
